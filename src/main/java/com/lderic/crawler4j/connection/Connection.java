@@ -1,5 +1,8 @@
 package com.lderic.crawler4j.connection;
 
+import com.lderic.crawler4j.converter.Receiver;
+import com.lderic.crawler4j.converter.Sender;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpCookie;
@@ -9,9 +12,7 @@ import java.util.List;
 
 @SuppressWarnings("ALL")
 public interface Connection {
-    <T> T open(Receivable<T> converter) throws IOException;
-
-    byte[] open() throws IOException;
+    <T> T open(Receiver<T> converter) throws IOException;
 
     List<Header> getResponseHeaders();
 
@@ -40,7 +41,7 @@ public interface Connection {
 
         Builder setBody(byte[] bytes);
 
-        <T> Builder setBody(T content, Sendable<T> converter);
+        <T> Builder setBody(T content, Sender<T> converter);
 
         Builder setBody(String content);
     }
@@ -79,7 +80,7 @@ public interface Connection {
     }
 
     public interface Response {
-        <T> T receive(Receivable<T> converter) throws IOException;
+        <T> T receive(Receiver<T> converter) throws IOException;
 
         InputStream receive() throws IOException;
     }

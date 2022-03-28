@@ -1,14 +1,13 @@
 package com.lderic.crawler4j;
 
 import com.lderic.crawler4j.connection.Connection;
-import com.lderic.crawler4j.connection.converter.FileConverter;
-import com.lderic.crawler4j.connection.converter.StringConverter;
+import com.lderic.crawler4j.converter.FileConverter;
+import com.lderic.crawler4j.converter.StringConverter;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-@SuppressWarnings("CodeBlock2Expr")
 public class Example {
     public static void main(String[] args) throws IOException {
         // 新建实例
@@ -29,7 +28,7 @@ public class Example {
                 .open(new StringConverter());
 
         // 效果还是一样
-        crawler.request(Connection.Request.Method.GET, "https://www.baidu.com", null, null);
+        crawler.request(Connection.Request.Method.GET, "https://www.baidu.com", null, null, null);
 
         // 这个是访问P站的 大同小异
         crawler.get(

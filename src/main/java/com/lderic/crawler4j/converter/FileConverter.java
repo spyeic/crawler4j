@@ -1,11 +1,8 @@
-package com.lderic.crawler4j.connection.converter;
-
-import com.lderic.crawler4j.connection.Receivable;
-import com.lderic.crawler4j.connection.Sendable;
+package com.lderic.crawler4j.converter;
 
 import java.io.*;
 
-public class FileConverter implements Receivable<File>, Sendable<File> {
+public class FileConverter implements Receiver<File>, Sender<File> {
     private final File file;
 
     public FileConverter(File file) {

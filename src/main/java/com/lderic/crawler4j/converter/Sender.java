@@ -1,4 +1,4 @@
-package com.lderic.crawler4j.connection;
+package com.lderic.crawler4j.converter;
 
 /**
  * This is an interface that to convert type T to byte array
@@ -6,6 +6,6 @@ package com.lderic.crawler4j.connection;
  * @see com.lderic.crawler4j.Crawler
  * @param <T>
  */
-public interface Sendable<T> {
+public interface Sender<T> {
     byte[] toBytes(T original);
 }

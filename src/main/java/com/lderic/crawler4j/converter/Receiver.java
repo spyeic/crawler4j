@@ -1,6 +1,5 @@
-package com.lderic.crawler4j.connection;
+package com.lderic.crawler4j.converter;
 
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -9,6 +8,6 @@ import java.io.InputStream;
  * @see com.lderic.crawler4j.Crawler
  * @param <T>
  */
-public interface Receivable<T> {
+public interface Receiver<T> {
     T toOriginal(InputStream content);
 }
