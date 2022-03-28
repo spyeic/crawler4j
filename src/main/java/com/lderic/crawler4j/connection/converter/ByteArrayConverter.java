@@ -7,12 +7,12 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
-public class StringConverter implements Receivable<String>, Sendable<String> {
+public class ByteArrayConverter implements Receivable<byte[]>, Sendable<byte[]> {
+
     @Override
-    public String toOriginal(InputStream content) {
-        String result = null;
+    public byte[] toOriginal(InputStream content) {
+        byte[] result = new byte[0];
         try (
                 BufferedInputStream bis = new BufferedInputStream(content);
                 ByteArrayOutputStream baos = new ByteArrayOutputStream(8192)
@@ -22,15 +22,16 @@ public class StringConverter implements Receivable<String>, Sendable<String> {
             while ((len = bis.read()) != -1) {
                 baos.write(len);
             }
-            result = baos.toString();
+            result = baos.toByteArray();
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return result;
     }
 
     @Override
-    public byte[] toBytes(String original) {
-        return original.getBytes(StandardCharsets.UTF_8);
+    public byte[] toBytes(byte[] original) {
+        return original;
     }
 }

@@ -1,8 +1,9 @@
 package com.lderic.crawler4j.connection;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
+import com.lderic.crawler4j.connection.converter.ByteArrayConverter;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -31,14 +32,18 @@ public class HttpConnection implements Connection {
     public <T> T open(Receivable<T> converter) throws IOException {
         HttpURLConnection conn = (HttpURLConnection) req.request();
         res = new HttpResponse(conn, cookieStorage);
-        return res.receive(converter);
+        T result = res.receive(converter);
+        res.conn.disconnect();
+        return result;
     }
 
     @Override
     public byte[] open() throws IOException {
         HttpURLConnection conn = (HttpURLConnection) req.request();
         res = new HttpResponse(conn, cookieStorage);
-        return res.receive();
+        byte[] result = res.receive(new ByteArrayConverter());
+        res.conn.disconnect();
+        return result;
     }
 
     @Override
@@ -50,15 +55,14 @@ public class HttpConnection implements Connection {
     }
 
     protected static class HttpConnectionBuilder implements Builder {
+        private final List<Header> headers = new ArrayList<>();
+        private final CookieStorage cookieStorage;
+        private final List<HttpCookie> tempCookies = new ArrayList<>();
         private Request.Method requestMethod;
         private URL url;
         private int connectTimeout;
         private int readTimeout;
-        private final List<Header> headers = new ArrayList<>();
-        private final CookieStorage cookieStorage;
         private byte[] body;
-
-        private final List<HttpCookie> tempCookies = new ArrayList<>();
 
         public HttpConnectionBuilder(CookieStorage cookieStorage) {
             this.cookieStorage = cookieStorage;
@@ -212,9 +216,7 @@ public class HttpConnection implements Connection {
     public static class HttpResponse implements Response {
         private final HttpURLConnection conn;
         private final CookieStorage cookieStorage;
-        @SuppressWarnings("FieldCanBeLocal")
         private int code;
-        @SuppressWarnings("FieldCanBeLocal")
         private String message;
         private List<Header> headers;
 
@@ -223,30 +225,31 @@ public class HttpConnection implements Connection {
             this.cookieStorage = cookieStorage;
         }
 
+        public int getCode() {
+            return code;
+        }
+
+        public String getMessage() {
+            return message;
+        }
+
         @Override
         public <T> T receive(Receivable<T> converter) throws IOException {
             return converter.toOriginal(receive());
         }
 
         @Override
-        public byte[] receive() throws IOException {
-            byte[] result;
+        public InputStream receive() throws IOException {
             code = conn.getResponseCode();
             message = conn.getResponseMessage();
-            try (BufferedInputStream bis = new BufferedInputStream(conn.getInputStream()); ByteArrayOutputStream baos = new ByteArrayOutputStream(8192)) {
-                int len;
-                while ((len = bis.read()) != -1) {
-                    baos.write(len);
-                }
-                result = baos.toByteArray();
-            }
+
             Map<String, List<String>> headerFields = conn.getHeaderFields();
             headers = new ArrayList<>();
             headerFields.forEach((key, values) -> {
                 if (key != null) {
                     if ("Set-Cookie".equals(key)) {
                         values.forEach(str -> HttpCookie.parse(str).forEach(cookie -> {
-                            System.out.println(cookie);
+//                            System.out.println(cookie);
                             cookieStorage.add(conn.getURL().toString(), cookie);
                         }));
                     } else {
@@ -260,8 +263,8 @@ public class HttpConnection implements Connection {
                     }
                 }
             });
-            conn.disconnect();
-            return result;
+
+            return conn.getInputStream();
         }
     }
 }

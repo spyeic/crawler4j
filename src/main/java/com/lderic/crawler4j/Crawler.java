@@ -17,10 +17,6 @@ public class Crawler {
         this.storage = storage;
     }
 
-    public static void main(String[] args) throws IOException {
-        Crawler crawler = new Crawler();
-    }
-
     public Connection.Builder newBuilder() {
         return HttpConnection.newBuilder(storage);
     }
@@ -71,24 +67,6 @@ public class Crawler {
 
     public <TInput, TOutput> TInput post(String url, TOutput body, Sendable<TOutput> oConverter, Receivable<TInput> iConverter, Consumer<Connection.Builder> consumer) throws IOException {
         return post(url, oConverter.toBytes(body), iConverter, consumer);
-    }
-
-    public byte[] request(String url, Consumer<Connection.Builder> consumer) throws IOException {
-        Connection.Builder builder = newBuilder();
-        builder.url(new URL(url));
-        if (consumer != null) {
-            consumer.accept(builder);
-        }
-        return builder.build().open();
-    }
-
-    public <T> T request(String url, Receivable<T> converter, Consumer<Connection.Builder> consumer) throws IOException {
-        Connection.Builder builder = newBuilder();
-        builder.url(new URL(url));
-        if (consumer != null) {
-            consumer.accept(builder);
-        }
-        return builder.build().open(converter);
     }
 
     public byte[] request(Connection.Request.Method method, String url, byte[] body, Consumer<Connection.Builder> consumer) throws IOException {

@@ -13,10 +13,17 @@ public class FileConverter implements Receivable<File>, Sendable<File> {
     }
 
     @Override
-    public File toOriginal(byte[] content) {
-        try (FileOutputStream fos = new FileOutputStream(file)) {
-            fos.write(content);
-        }catch (IOException e){
+    public File toOriginal(InputStream content) {
+        try (
+                BufferedInputStream bis = new BufferedInputStream(content);
+                BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file))
+        ) {
+            int len;
+
+            while ((len = bis.read()) != -1) {
+                bos.write(len);
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
         return file;
@@ -30,11 +37,11 @@ public class FileConverter implements Receivable<File>, Sendable<File> {
         ) {
             int len;
 
-            while ((len = bis.read()) != -1){
+            while ((len = bis.read()) != -1) {
                 baos.write(len);
             }
             return baos.toByteArray();
-        }catch (IOException e){
+        } catch (IOException e) {
             throw new Error("FileConverter Error");
         }
     }

@@ -1,6 +1,7 @@
 package com.lderic.crawler4j.connection;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpCookie;
 import java.net.URL;
 import java.net.URLConnection;
@@ -80,6 +81,6 @@ public interface Connection {
     public interface Response {
         <T> T receive(Receivable<T> converter) throws IOException;
 
-        byte[] receive() throws IOException;
+        InputStream receive() throws IOException;
     }
 }

@@ -29,9 +29,7 @@ public class Example {
                 .open(new StringConverter());
 
         // 效果还是一样
-        crawler.request("https://www.baidu.com", builder -> {
-            builder.setMethod(Connection.Request.Method.GET);
-        });
+        crawler.request(Connection.Request.Method.GET, "https://www.baidu.com", null, null);
 
         // 这个是访问P站的 大同小异
         crawler.get(

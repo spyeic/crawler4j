@@ -1,5 +1,8 @@
 package com.lderic.crawler4j.connection;
 
+import java.io.IOException;
+import java.io.InputStream;
+
 /**
  * This is an interface to convert byte array to Type T.
  * @implNote Any class that implement the interface can as a parameter in get method in Crawler
@@ -7,5 +10,5 @@ package com.lderic.crawler4j.connection;
  * @param <T>
  */
 public interface Receivable<T> {
-    T toOriginal(byte[] content);
+    T toOriginal(InputStream content);
 }
