@@ -3,6 +3,8 @@
 This is a crawler for Java.
 
 ### Target:
+- [x] InputStreamConverter
+- [x] ByteArrayConverter
 - [x] StringConverter
 - [x] FileConverter
 - [ ] JsonConverter
@@ -20,10 +22,10 @@ class Example {
 }
 ```
 
-To change result type, you can implement Receivable:
+To change result type, you can implement Receiver:
 
 ```java
-public class StringConverter implements Receivable<String> {
+public class StringConverter implements Receiver<String> {
     @Override
     public String toOriginal(byte[] content) {
         return new String(content);
@@ -43,10 +45,10 @@ class Example {
 }
 ```
 
-For post request, you can implement Sendable:
+For post request, you can implement Sender:
 
 ```java
-public class StringConverter implements Sendable<String> {
+public class StringConverter implements Sender<String> {
     @Override
     public byte[] toBytes(String original) {
         return original.getBytes(StandardCharsets.UTF_8);
