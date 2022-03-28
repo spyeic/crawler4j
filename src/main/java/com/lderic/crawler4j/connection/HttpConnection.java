@@ -28,7 +28,7 @@ public class HttpConnection implements Connection {
     }
 
     @Override
-    public <T> T open(Inputtable<T> converter) throws IOException {
+    public <T> T open(Receivable<T> converter) throws IOException {
         HttpURLConnection conn = (HttpURLConnection) req.request();
         res = new HttpResponse(conn, cookieStorage);
         return res.receive(converter);
@@ -141,8 +141,8 @@ public class HttpConnection implements Connection {
         }
 
         @Override
-        public <T> Builder setBody(T content, Outputtable<T> converter) {
-            setBody(converter.body(content));
+        public <T> Builder setBody(T content, Sendable<T> converter) {
+            setBody(converter.toBytes(content));
             return this;
         }
 
@@ -224,8 +224,8 @@ public class HttpConnection implements Connection {
         }
 
         @Override
-        public <T> T receive(Inputtable<T> converter) throws IOException {
-            return converter.transfer(receive());
+        public <T> T receive(Receivable<T> converter) throws IOException {
+            return converter.toOriginal(receive());
         }
 
         @Override

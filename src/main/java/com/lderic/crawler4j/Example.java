@@ -1,4 +1,5 @@
-import com.lderic.crawler4j.Crawler;
+package com.lderic.crawler4j;
+
 import com.lderic.crawler4j.connection.Connection;
 import com.lderic.crawler4j.connection.converter.FileConverter;
 import com.lderic.crawler4j.connection.converter.StringConverter;
@@ -8,7 +9,7 @@ import java.io.IOException;
 import java.net.URL;
 
 @SuppressWarnings("CodeBlock2Expr")
-public class Examples {
+public class Example {
     public static void main(String[] args) throws IOException {
         // 新建实例
         Crawler crawler = new Crawler();

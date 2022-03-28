@@ -8,7 +8,7 @@ import java.util.List;
 
 @SuppressWarnings("ALL")
 public interface Connection {
-    <T> T open(Inputtable<T> converter) throws IOException;
+    <T> T open(Receivable<T> converter) throws IOException;
 
     byte[] open() throws IOException;
 
@@ -39,7 +39,7 @@ public interface Connection {
 
         Builder setBody(byte[] bytes);
 
-        <T> Builder setBody(T content,Outputtable<T> converter);
+        <T> Builder setBody(T content, Sendable<T> converter);
 
         Builder setBody(String content);
     }
@@ -78,7 +78,7 @@ public interface Connection {
     }
 
     public interface Response {
-        <T> T receive(Inputtable<T> converter) throws IOException;
+        <T> T receive(Receivable<T> converter) throws IOException;
 
         byte[] receive() throws IOException;
     }

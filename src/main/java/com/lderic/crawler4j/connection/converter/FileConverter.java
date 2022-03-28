@@ -1,11 +1,11 @@
 package com.lderic.crawler4j.connection.converter;
 
-import com.lderic.crawler4j.connection.Inputtable;
-import com.lderic.crawler4j.connection.Outputtable;
+import com.lderic.crawler4j.connection.Receivable;
+import com.lderic.crawler4j.connection.Sendable;
 
 import java.io.*;
 
-public class FileConverter implements Inputtable<File>, Outputtable<File> {
+public class FileConverter implements Receivable<File>, Sendable<File> {
     private final File file;
 
     public FileConverter(File file) {
@@ -13,7 +13,7 @@ public class FileConverter implements Inputtable<File>, Outputtable<File> {
     }
 
     @Override
-    public File transfer(byte[] content) {
+    public File toOriginal(byte[] content) {
         try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write(content);
         }catch (IOException e){
@@ -23,7 +23,7 @@ public class FileConverter implements Inputtable<File>, Outputtable<File> {
     }
 
     @Override
-    public byte[] body(File original) {
+    public byte[] toBytes(File original) {
         try (
                 BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
                 ByteArrayOutputStream baos = new ByteArrayOutputStream(8192)

@@ -7,10 +7,6 @@ import java.net.URL;
 import java.util.function.Consumer;
 
 public class Crawler {
-    public static void main(String[] args) throws IOException {
-        Crawler crawler = new Crawler();
-    }
-
     private final CookieStorage storage;
 
     public Crawler() {
@@ -19,6 +15,10 @@ public class Crawler {
 
     public Crawler(CookieStorage storage) {
         this.storage = storage;
+    }
+
+    public static void main(String[] args) throws IOException {
+        Crawler crawler = new Crawler();
     }
 
     public Connection.Builder newBuilder() {
@@ -33,11 +33,11 @@ public class Crawler {
         return request(Connection.Request.Method.GET, url, null, consumer);
     }
 
-    public <T> T get(String url, Inputtable<T> converter) throws IOException {
+    public <T> T get(String url, Receivable<T> converter) throws IOException {
         return get(url, converter, null);
     }
 
-    public <T> T get(String url, Inputtable<T> converter, Consumer<Connection.Builder> consumer) throws IOException {
+    public <T> T get(String url, Receivable<T> converter, Consumer<Connection.Builder> consumer) throws IOException {
         return request(Connection.Request.Method.GET, url, null, converter, consumer);
     }
 
@@ -49,20 +49,28 @@ public class Crawler {
         return request(Connection.Request.Method.POST, url, body, consumer);
     }
 
-    public <T> T post(String url, byte[] body, Inputtable<T> converter) throws IOException {
+    public <T> T post(String url, byte[] body, Receivable<T> converter) throws IOException {
         return post(url, body, converter, null);
     }
 
-    public <T> T post(String url, byte[] body, Inputtable<T> converter, Consumer<Connection.Builder> consumer) throws IOException {
+    public <T> T post(String url, byte[] body, Receivable<T> converter, Consumer<Connection.Builder> consumer) throws IOException {
         return request(Connection.Request.Method.POST, url, body, converter, consumer);
     }
 
-    public <TInput, TOutput> TInput post(String url, TOutput body, Outputtable<TOutput> oConverter, Inputtable<TInput> iConverter) throws IOException {
+    public <T> byte[] post(String url, T body, Sendable<T> converter) throws IOException {
+        return post(url, body, converter, (Consumer<Connection.Builder>) null);
+    }
+
+    public <T> byte[] post(String url, T body, Sendable<T> converter, Consumer<Connection.Builder> consumer) throws IOException {
+        return request(Connection.Request.Method.POST, url, converter.toBytes(body), consumer);
+    }
+
+    public <TInput, TOutput> TInput post(String url, TOutput body, Sendable<TOutput> oConverter, Receivable<TInput> iConverter) throws IOException {
         return post(url, body, oConverter, iConverter, null);
     }
 
-    public <TInput, TOutput> TInput post(String url, TOutput body, Outputtable<TOutput> oConverter, Inputtable<TInput> iConverter, Consumer<Connection.Builder> consumer) throws IOException {
-        return post(url, oConverter.body(body), iConverter, consumer);
+    public <TInput, TOutput> TInput post(String url, TOutput body, Sendable<TOutput> oConverter, Receivable<TInput> iConverter, Consumer<Connection.Builder> consumer) throws IOException {
+        return post(url, oConverter.toBytes(body), iConverter, consumer);
     }
 
     public byte[] request(String url, Consumer<Connection.Builder> consumer) throws IOException {
@@ -74,7 +82,7 @@ public class Crawler {
         return builder.build().open();
     }
 
-    public <T> T request(String url, Inputtable<T> converter, Consumer<Connection.Builder> consumer) throws IOException {
+    public <T> T request(String url, Receivable<T> converter, Consumer<Connection.Builder> consumer) throws IOException {
         Connection.Builder builder = newBuilder();
         builder.url(new URL(url));
         if (consumer != null) {
@@ -92,7 +100,7 @@ public class Crawler {
         return builder.build().open();
     }
 
-    public <T> T request(Connection.Request.Method method, String url, byte[] body, Inputtable<T> converter, Consumer<Connection.Builder> consumer) throws IOException {
+    public <T> T request(Connection.Request.Method method, String url, byte[] body, Receivable<T> converter, Consumer<Connection.Builder> consumer) throws IOException {
         Connection.Builder builder = newBuilder();
         builder.setMethod(method).url(new URL(url)).setBody(body);
         if (consumer != null) {

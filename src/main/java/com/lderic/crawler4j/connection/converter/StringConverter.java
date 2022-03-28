@@ -1,18 +1,18 @@
 package com.lderic.crawler4j.connection.converter;
 
-import com.lderic.crawler4j.connection.Inputtable;
-import com.lderic.crawler4j.connection.Outputtable;
+import com.lderic.crawler4j.connection.Receivable;
+import com.lderic.crawler4j.connection.Sendable;
 
 import java.nio.charset.StandardCharsets;
 
-public class StringConverter implements Inputtable<String>, Outputtable<String> {
+public class StringConverter implements Receivable<String>, Sendable<String> {
     @Override
-    public String transfer(byte[] content) {
+    public String toOriginal(byte[] content) {
         return new String(content);
     }
 
     @Override
-    public byte[] body(String original) {
+    public byte[] toBytes(String original) {
         return original.getBytes(StandardCharsets.UTF_8);
     }
 }
