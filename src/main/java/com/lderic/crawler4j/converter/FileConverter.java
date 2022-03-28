@@ -1,16 +1,23 @@
 package com.lderic.crawler4j.converter;
 
 import java.io.*;
+import java.util.Objects;
 
 public class FileConverter implements Receiver<File>, Sender<File> {
-    private final File file;
+    private File file;
 
+    /**
+     * @param file Target file, only used when receiving content.
+     */
     public FileConverter(File file) {
         this.file = file;
     }
 
+    public FileConverter() {}
+
     @Override
     public File toOriginal(InputStream content) {
+        Objects.requireNonNull(file);
         try (
                 BufferedInputStream bis = new BufferedInputStream(content);
                 BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file))
@@ -29,7 +36,7 @@ public class FileConverter implements Receiver<File>, Sender<File> {
     @Override
     public byte[] toBytes(File original) {
         try (
-                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(file));
+                BufferedInputStream bis = new BufferedInputStream(new FileInputStream(original));
                 ByteArrayOutputStream baos = new ByteArrayOutputStream(8192)
         ) {
             int len;
