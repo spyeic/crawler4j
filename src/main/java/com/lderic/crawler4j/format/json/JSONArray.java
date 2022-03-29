@@ -3,7 +3,7 @@ package com.lderic.crawler4j.format.json;
 import java.util.List;
 
 public class JSONArray<T extends JSONElement> extends JSONElement {
-    List<T> list;
+    private final List<T> list;
 
     public JSONArray(List<T> value) {
         this.list = value;
@@ -14,20 +14,32 @@ public class JSONArray<T extends JSONElement> extends JSONElement {
     }
 
     public void add(T element) {
+        element.setFather(this);
         list.add(element);
     }
 
+    public JSONElement remove(int index){
+        JSONElement result = list.remove(index);
+        result.setFather(null);
+        return result;
+    }
+
     @Override
-    public String buildString() {
+    public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         if (list.size() > 0) {
-            sb.append(list.get(0).buildString());
+            sb.append(list.get(0).toString());
         }
         for (int i = 1; i < list.size(); i++) {
-            sb.append(", ").append(list.get(i).buildString());
+            sb.append(", ").append(list.get(i).toString());
         }
         sb.append("]");
         return sb.toString();
+    }
+
+    @Override
+    public Object getValue() throws JSONConvertException {
+        throw new JSONConvertException("JSONArray doesn't have any value");
     }
 }

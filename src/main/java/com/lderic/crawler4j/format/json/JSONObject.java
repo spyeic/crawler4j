@@ -24,29 +24,53 @@ public class JSONObject extends JSONElement {
         return setEntry(key, new JSONArray<>(value));
     }
 
+    public JSONObject setEntry(String key, String... values) {
+        return setEntry(key, JSONHelper.jsonArrayOf(values));
+    }
+
+    public JSONObject setEntry(String key, Number... values) {
+        return setEntry(key, JSONHelper.jsonArrayOf(values));
+    }
+
     public JSONObject setEntry(String key, JSONObject value) {
         return setEntry(key, (JSONElement) value);
     }
 
-    public JSONObject setNullEntry(String key){
+    public JSONObject setNullEntry(String key) {
         return setEntry(key, new JSONNull());
     }
 
     public JSONObject setEntry(String key, JSONElement value) {
         Objects.requireNonNull(key);
         Objects.requireNonNull(value);
+        value.setFather(this);
         map.put(key, value);
         return this;
     }
 
+    public JSONElement remove(String key){
+        JSONElement result = map.remove(key);
+        result.setFather(null);
+        return result;
+    }
+
     public JSONObject newChildObject(String key) {
         JSONObject child = new JSONObject();
+        child.setFather(this);
         this.setEntry(key, child);
         return child;
     }
 
+    public JSONElement get(String key) throws JSONConvertException {
+        JSONElement result = map.get(key);
+        if (result == null) {
+            throw new JSONConvertException("This JSONObject doesn't have key " + key);
+        }
+        return result;
+    }
+
     @Override
-    public String buildString() {
+    public String toString() {
         List<Map.Entry<String, JSONElement>> list = map.entrySet().stream().toList();
         StringBuilder sb = new StringBuilder();
         sb.append("{");
@@ -60,9 +84,8 @@ public class JSONObject extends JSONElement {
         return sb.toString();
     }
 
-    public static void main(String[] args) {
-        JSONObject obj = new JSONObject();
-        obj.setNullEntry("eroc");
-        System.out.println(obj.buildString());
+    @Override
+    public Object getValue() throws JSONConvertException {
+        throw new JSONConvertException("JSONObject doesn't have any value");
     }
 }

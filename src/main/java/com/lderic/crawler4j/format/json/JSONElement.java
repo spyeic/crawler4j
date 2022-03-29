@@ -4,7 +4,19 @@ package com.lderic.crawler4j.format.json;
  * Mark class.
  */
 public abstract class JSONElement {
-    public abstract String buildString();
+    private JSONElement father;
+
+    public abstract String toString();
+
+    public JSONElement getFather(){
+        return father;
+    }
+
+    protected void setFather(JSONElement father){
+        this.father = father;
+    }
+
+    public abstract Object getValue() throws JSONConvertException;
 
     public JSONObject asObject(){
         return (JSONObject) this;
@@ -12,17 +24,5 @@ public abstract class JSONElement {
 
     public JSONArray<JSONElement> asArray(){
         return (JSONArray<JSONElement>) this;
-    }
-
-    public JSONNumber asNumber() {
-        return (JSONNumber) this;
-    }
-
-    public JSONBoolean asBoolean() {
-        return (JSONBoolean) this;
-    }
-
-    public JSONString asString() {
-        return (JSONString) this;
     }
 }
