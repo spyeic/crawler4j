@@ -157,7 +157,7 @@ public class JSONParser {
                     }
                     case '[' -> {
                         ArrayBuilder builder = new ArrayBuilder();
-                        JSONArray<JSONElement> obj = builder.parseArray();
+                        JSONArray obj = builder.parseArray();
                         map.put(sb.substring(1, sb.length() - 2), obj);
                         canSkip = true;
                         continue;
@@ -177,7 +177,7 @@ public class JSONParser {
             list.add(parseToElement(value));
         }
 
-        private JSONArray<JSONElement> parseArray() throws IOException, JSONConvertException {
+        private JSONArray parseArray() throws IOException, JSONConvertException {
             int len;
             StringBuilder sb = new StringBuilder();
 
@@ -206,7 +206,7 @@ public class JSONParser {
                     }
                     case '[' -> {
                         ArrayBuilder builder = new ArrayBuilder();
-                        JSONArray<JSONElement> obj = builder.parseArray();
+                        JSONArray obj = builder.parseArray();
                         list.add(obj);
                         canSkip = true;
                         continue;
@@ -217,7 +217,7 @@ public class JSONParser {
                         } else {
                             addToList(sb.toString());
                         }
-                        return new JSONArray<>(list);
+                        return new JSONArray(list);
                     }
                 }
                 sb.append(c);

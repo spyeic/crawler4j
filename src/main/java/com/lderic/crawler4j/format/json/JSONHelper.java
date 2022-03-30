@@ -8,24 +8,24 @@ public class JSONHelper {
         return "\"" + key + "\": " + value.toString();
     }
 
-    public static JSONArray<JSONNumber> jsonArrayOf(Number... nums) {
-        return new JSONArray<>(numberListOf(nums));
+    public static JSONArray jsonArrayOf(Number... nums) {
+        return new JSONArray(numberListOf(nums));
     }
 
-    public static JSONArray<JSONString> jsonArrayOf(String... nums) {
-        return new JSONArray<>(stringListOf(nums));
+    public static JSONArray jsonArrayOf(String... nums) {
+        return new JSONArray(stringListOf(nums));
     }
 
-    public static List<JSONNumber> numberListOf(Number... nums) {
-        List<JSONNumber> list = new ArrayList<>();
+    public static List<JSONElement> numberListOf(Number... nums) {
+        List<JSONElement> list = new ArrayList<>();
         for (Number num : nums) {
             list.add(new JSONNumber(num));
         }
         return list;
     }
 
-    public static List<JSONString> stringListOf(String... strings) {
-        List<JSONString> list = new ArrayList<>();
+    public static List<JSONElement> stringListOf(String... strings) {
+        List<JSONElement> list = new ArrayList<>();
         for (String str : strings) {
             list.add(new JSONString(str));
         }
