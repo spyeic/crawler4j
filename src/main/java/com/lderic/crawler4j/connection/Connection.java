@@ -1,10 +1,9 @@
 package com.lderic.crawler4j.connection;
 
-import com.lderic.crawler4j.converter.Receiver;
-import com.lderic.crawler4j.converter.Sender;
+import com.lderic.crawler4j.converter.receiver.Receiver;
+import com.lderic.crawler4j.converter.sender.Sender;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.HttpCookie;
 import java.net.URL;
 import java.net.URLConnection;
@@ -12,9 +11,7 @@ import java.util.List;
 
 @SuppressWarnings("ALL")
 public interface Connection {
-    <T> T open(Receiver<T> converter) throws IOException;
-
-    List<Header> getResponseHeaders();
+    <T> Response<T> open(Receiver<T> converter) throws IOException;
 
     interface Builder {
         Connection build();
@@ -22,6 +19,8 @@ public interface Connection {
         Builder url(URL url);
 
         Builder userAgent(String userAgent);
+
+        Builder header(Header header);
 
         Builder header(String name, String value);
 
@@ -79,9 +78,17 @@ public interface Connection {
         }
     }
 
-    public interface Response {
-        <T> T receive(Receiver<T> converter) throws IOException;
+    public interface Response<T> {
+        T getContent();
 
-        InputStream receive() throws IOException;
+        int getCode();
+
+        String getMessage();
+
+        List<Header> getHeaders();
+
+        Header getHeader(String name);
+
+        T receive(Receiver<T> converter) throws IOException;
     }
 }

@@ -1,4 +1,4 @@
-package com.lderic.crawler4j.converter;
+package com.lderic.crawler4j.converter.receiver;
 
 import java.io.InputStream;
 

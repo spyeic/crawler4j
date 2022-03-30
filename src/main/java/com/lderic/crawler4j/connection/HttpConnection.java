@@ -1,7 +1,7 @@
 package com.lderic.crawler4j.connection;
 
-import com.lderic.crawler4j.converter.Receiver;
-import com.lderic.crawler4j.converter.Sender;
+import com.lderic.crawler4j.converter.receiver.Receiver;
+import com.lderic.crawler4j.converter.sender.Sender;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +18,6 @@ import java.util.Objects;
 public class HttpConnection implements Connection {
     private final HttpRequest req;
     private final CookieStorage cookieStorage;
-    private HttpResponse res;
 
     private HttpConnection(HttpRequest req) {
         this.req = req;
@@ -30,20 +29,12 @@ public class HttpConnection implements Connection {
     }
 
     @Override
-    public <T> T open(Receiver<T> converter) throws IOException {
+    public <T> Response<T> open(Receiver<T> converter) throws IOException {
         HttpURLConnection conn = (HttpURLConnection) req.request();
-        res = new HttpResponse(conn, cookieStorage);
-        T result = res.receive(converter);
+        HttpResponse<T> res = new HttpResponse<>(conn, cookieStorage);
+        res.receive(converter);
         res.conn.disconnect();
-        return result;
-    }
-
-    @Override
-    public List<Header> getResponseHeaders() {
-        if (res.headers == null) {
-            return null;
-        }
-        return res.headers;
+        return res;
     }
 
     protected static class HttpConnectionBuilder implements Builder {
@@ -79,6 +70,12 @@ public class HttpConnection implements Connection {
         @Override
         public Builder userAgent(String userAgent) {
             this.headers.add(Header.userAgent(userAgent));
+            return this;
+        }
+
+        @Override
+        public Builder header(Header header) {
+            this.headers.add(header);
             return this;
         }
 
@@ -205,33 +202,57 @@ public class HttpConnection implements Connection {
         }
     }
 
-    public static class HttpResponse implements Response {
+    public static class HttpResponse<T> implements Response<T> {
         private final HttpURLConnection conn;
         private final CookieStorage cookieStorage;
         private int code;
         private String message;
         private List<Header> headers;
+        private T content;
+
 
         private HttpResponse(HttpURLConnection conn, CookieStorage cookieStorage) {
             this.conn = conn;
             this.cookieStorage = cookieStorage;
         }
 
+        @Override
+        public T getContent() {
+            return content;
+        }
+
+        @Override
         public int getCode() {
             return code;
         }
 
+        @Override
         public String getMessage() {
             return message;
         }
 
         @Override
-        public <T> T receive(Receiver<T> converter) throws IOException {
-            return converter.toOriginal(receive());
+        public List<Header> getHeaders() {
+            return headers;
         }
 
         @Override
-        public InputStream receive() throws IOException {
+        public Header getHeader(String name) {
+            for (Header header : headers) {
+                if (Objects.equals(header.getKey(), name)) {
+                    return header;
+                }
+            }
+            return null;
+        }
+
+        @Override
+        public T receive(Receiver<T> converter) throws IOException {
+            content = converter.toOriginal(receive());
+            return content;
+        }
+
+        private InputStream receive() throws IOException {
             code = conn.getResponseCode();
             message = conn.getResponseMessage();
 

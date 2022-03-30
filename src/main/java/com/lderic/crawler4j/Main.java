@@ -1,10 +1,9 @@
 package com.lderic.crawler4j;
 
-import com.lderic.crawler4j.format.json.JSONConvertException;
-import com.lderic.crawler4j.format.json.JSONParser;
+import java.io.IOException;
 
 public class Main {
-    public static void main(String[] args) throws JSONConvertException {
-        System.out.println(JSONParser.parse("{\"1\":{\"2\":{\"3\":{\"4\":[5,{\"6\":7}]}}}}"));
+    public static void main(String[] args) throws IOException {
+        Crawler crawler = new Crawler();
     }
 }

@@ -1,13 +1,12 @@
-package com.lderic.crawler4j.converter;
+package com.lderic.crawler4j.converter.receiver;
 
 import com.lderic.crawler4j.format.json.JSONConvertException;
 import com.lderic.crawler4j.format.json.JSONObject;
 import com.lderic.crawler4j.format.json.JSONParser;
 
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 
-public class JsonConverter implements Receiver<JSONObject>, Sender<JSONObject> {
+public class JsonReceiver implements Receiver<JSONObject> {
     @Override
     public JSONObject toOriginal(InputStream content) {
         try {
@@ -15,10 +14,5 @@ public class JsonConverter implements Receiver<JSONObject>, Sender<JSONObject> {
         } catch (JSONConvertException e) {
             return null;
         }
-    }
-
-    @Override
-    public byte[] toBytes(JSONObject original) {
-        return original.toString().getBytes(StandardCharsets.UTF_8);
     }
 }

@@ -1,4 +1,4 @@
-package com.lderic.crawler4j.converter;
+package com.lderic.crawler4j.converter.sender;
 
 /**
  * This is an interface that to convert type T to byte array
