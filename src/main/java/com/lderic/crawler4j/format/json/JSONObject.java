@@ -1,12 +1,18 @@
 package com.lderic.crawler4j.format.json;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-public class JSONObject extends JSONElement {
+/**
+ * A packaging class for HashMap.
+ */
+public class JSONObject extends JSONContainer implements Map<String, JSONElement> {
     private final HashMap<String, JSONElement> map = new HashMap<>();
+
+    /**
+     * Create a new JSONObject.
+     */
+    public JSONObject() {
+    }
 
     public JSONObject setEntry(String key, Number value) {
         return setEntry(key, new JSONNumber(value));
@@ -20,16 +26,16 @@ public class JSONObject extends JSONElement {
         return setEntry(key, new JSONBoolean(value));
     }
 
-    public <T extends JSONElement> JSONObject setEntry(String key, List<T> value) {
-        return setEntry(key, new JSONArray<>(value));
+    public JSONObject setEntry(String key, List<JSONElement> value) {
+        return setEntry(key, (JSONElement) new JSONArray(value));
     }
 
     public JSONObject setEntry(String key, String... values) {
-        return setEntry(key, JSONHelper.jsonArrayOf(values));
+        return setEntry(key, (JSONElement) JSONHelper.jsonArrayOf(values));
     }
 
     public JSONObject setEntry(String key, Number... values) {
-        return setEntry(key, JSONHelper.jsonArrayOf(values));
+        return setEntry(key, (JSONElement) JSONHelper.jsonArrayOf(values));
     }
 
     public JSONObject setEntry(String key, JSONObject value) {
@@ -41,17 +47,8 @@ public class JSONObject extends JSONElement {
     }
 
     public JSONObject setEntry(String key, JSONElement value) {
-        Objects.requireNonNull(key);
-        Objects.requireNonNull(value);
-        value.setFather(this);
-        map.put(key, value);
+        this.put(key, value);
         return this;
-    }
-
-    public JSONElement remove(String key) {
-        JSONElement result = map.remove(key);
-        result.setFather(null);
-        return result;
     }
 
     public JSONObject newChildObject(String key) {
@@ -59,14 +56,6 @@ public class JSONObject extends JSONElement {
         child.setFather(this);
         this.setEntry(key, child);
         return child;
-    }
-
-    public JSONElement get(String key) throws JSONConvertException {
-        JSONElement result = map.get(key);
-        if (result == null) {
-            throw new JSONConvertException("This JSONObject doesn't have key " + key);
-        }
-        return result;
     }
 
     @Override
@@ -82,5 +71,71 @@ public class JSONObject extends JSONElement {
         }
         sb.append("}");
         return sb.toString();
+    }
+
+    @Override
+    public int size() {
+        return map.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return map.isEmpty();
+    }
+
+    @Override
+    public boolean containsKey(Object key) {
+        return map.containsKey(key);
+    }
+
+    @Override
+    public boolean containsValue(Object value) {
+        return map.containsValue(value);
+    }
+
+    @Override
+    public JSONElement get(Object key) {
+        return map.get(key);
+    }
+
+    @Override
+    public JSONElement put(String key, JSONElement value) {
+        Objects.requireNonNull(key);
+        Objects.requireNonNull(value);
+        value.setFather(this);
+        return map.put(key, value);
+    }
+
+    @Override
+    public JSONElement remove(Object key) {
+        JSONElement result = map.remove(key);
+        result.setFather(null);
+        return result;
+    }
+
+    @Override
+    public void putAll(Map<? extends String, ? extends JSONElement> m) {
+        m.forEach((key, value) -> value.setFather(this));
+        map.putAll(m);
+    }
+
+    @Override
+    public void clear() {
+        map.clear();
+    }
+
+    @Override
+    public Set<String> keySet() {
+        return map.keySet();
+    }
+
+    @Override
+    public Collection<JSONElement> values() {
+        return map.values();
+    }
+
+    @Override
+    public Set<Entry<String, JSONElement>> entrySet() {
+        return map.entrySet();
     }
 }
