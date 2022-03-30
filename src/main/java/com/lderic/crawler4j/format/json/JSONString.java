@@ -3,7 +3,7 @@ package com.lderic.crawler4j.format.json;
 public class JSONString extends JSONValue<String> {
     private final String value;
 
-    public JSONString(String value) {
+    protected JSONString(String value) {
         this.value = value;
     }
 

@@ -3,7 +3,7 @@ package com.lderic.crawler4j.format.json;
 public class JSONNumber extends JSONValue<Number> {
     private final Number value;
 
-    public JSONNumber(Number num) {
+    protected JSONNumber(Number num) {
         this.value = num;
     }
 
