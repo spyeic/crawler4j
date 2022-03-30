@@ -18,7 +18,7 @@ public class JSONArray<T extends JSONElement> extends JSONElement {
         list.add(element);
     }
 
-    public JSONElement remove(int index){
+    public JSONElement remove(int index) {
         JSONElement result = list.remove(index);
         result.setFather(null);
         return result;
@@ -36,10 +36,5 @@ public class JSONArray<T extends JSONElement> extends JSONElement {
         }
         sb.append("]");
         return sb.toString();
-    }
-
-    @Override
-    public Object getValue() throws JSONConvertException {
-        throw new JSONConvertException("JSONArray doesn't have any value");
     }
 }

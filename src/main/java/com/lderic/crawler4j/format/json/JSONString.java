@@ -1,6 +1,6 @@
 package com.lderic.crawler4j.format.json;
 
-public class JSONString extends JSONElement {
+public class JSONString extends JSONValue<String> {
     private final String value;
 
     public JSONString(String value) {
@@ -13,7 +13,7 @@ public class JSONString extends JSONElement {
     }
 
     @Override
-    public Object getValue() {
+    public String getValue() {
         return value;
     }
 }

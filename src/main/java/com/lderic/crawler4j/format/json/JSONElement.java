@@ -16,8 +16,6 @@ public abstract class JSONElement {
         this.father = father;
     }
 
-    public abstract Object getValue() throws JSONConvertException;
-
     public JSONObject asObject() {
         return (JSONObject) this;
     }
@@ -25,6 +23,11 @@ public abstract class JSONElement {
     @SuppressWarnings("unchecked")
     public JSONArray<JSONElement> asArray() {
         return (JSONArray<JSONElement>) this;
+    }
+
+    @SuppressWarnings("unchecked")
+    public JSONValue<Object> asValue() {
+        return (JSONValue<Object>) this;
     }
 
     public String asString() throws JSONConvertException {
@@ -46,9 +49,9 @@ public abstract class JSONElement {
     @SuppressWarnings("unchecked")
     public <T> T as(Class<T> clazz) throws JSONConvertException {
         try {
-            return (T) this.getValue();
+            return (T) this.asValue().getValue();
         } catch (Exception ignored) {
-            throw new JSONConvertException("Can't convert " + getValue() + " to " + clazz.getName());
+            throw new JSONConvertException("Can't convert " + this.asValue().getValue().getClass().getName() + " to " + clazz.getName());
         }
     }
 }

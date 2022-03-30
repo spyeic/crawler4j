@@ -1,6 +1,6 @@
 package com.lderic.crawler4j.format.json;
 
-public class JSONBoolean extends JSONElement {
+public class JSONBoolean extends JSONValue<Boolean> {
     private final boolean value;
 
     public JSONBoolean(boolean value) {
@@ -13,7 +13,7 @@ public class JSONBoolean extends JSONElement {
     }
 
     @Override
-    public Object getValue() {
+    public Boolean getValue() {
         return value;
     }
 }

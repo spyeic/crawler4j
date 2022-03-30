@@ -83,9 +83,4 @@ public class JSONObject extends JSONElement {
         sb.append("}");
         return sb.toString();
     }
-
-    @Override
-    public Object getValue() throws JSONConvertException {
-        throw new JSONConvertException("JSONObject doesn't have any value");
-    }
 }

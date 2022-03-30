@@ -1,9 +1,9 @@
 package com.lderic.crawler4j.format.json;
 
-public class JSONNumber extends JSONElement{
+public class JSONNumber extends JSONValue<Number> {
     private final Number value;
 
-    public JSONNumber(Number num){
+    public JSONNumber(Number num) {
         this.value = num;
     }
 
@@ -13,12 +13,7 @@ public class JSONNumber extends JSONElement{
     }
 
     @Override
-    public JSONElement getFather() {
-        return null;
-    }
-
-    @Override
-    public Object getValue() {
+    public Number getValue() {
         return value;
     }
 }

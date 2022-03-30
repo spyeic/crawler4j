@@ -1,6 +1,6 @@
 package com.lderic.crawler4j.format.json;
 
-public class JSONNull extends JSONElement {
+public class JSONNull extends JSONValue<Object> {
     @Override
     public String toString() {
         return "null";
