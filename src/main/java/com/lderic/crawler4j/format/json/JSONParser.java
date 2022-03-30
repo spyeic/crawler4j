@@ -4,17 +4,13 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class JSONParser {
 
-    public static void main(String[] args) throws IOException {
-        JSONObject object = parse(new StringReader("{\"name\": \"eric\", \"age\": 16, \"details\":   {\"hair\": \"black\", \"color\": \"yellow\"}}"));
-        System.out.println(object == null);
-    }
-
     final BufferedReader reader;
-    HashMap<String, JSONElement> map = new HashMap<>();
+    private boolean canIgnore = true;
 
     public JSONParser(Reader reader) {
         if (reader instanceof BufferedReader) {
@@ -24,84 +20,112 @@ public class JSONParser {
         }
     }
 
-    static boolean canIgnore = true;
-
-    public void parseEntryToMap(String entry) {
-        String[] arr = entry.split(":");
-        String key = arr[0].substring(1, arr.length - 1);
-        String value = arr[1];
-        if ("null".equalsIgnoreCase(value)) {
-            map.put(key, new JSONNull());
-            return;
-        }
-        if ("true".equalsIgnoreCase(arr[1]) || "false".equalsIgnoreCase(arr[1])) {
-            map.put(key, new JSONBoolean(Boolean.parseBoolean(value)));
-            return;
-        }
-
-        Number num = null;
-        try {
-            num = Long.parseLong(value);
-        } catch (Exception ignored) {
-            try {
-                num = Double.parseDouble(value);
-            } catch (Exception ignored2) {
-            }
-        }
-
-        if (num != null) {
-            map.put(key, new JSONNumber(num));
-        } else {
-            if (value.startsWith("\"")) {
-                value = value.substring(1);
-            }
-            if (value.endsWith("\"")) {
-                value = value.substring(0, value.length() - 1);
-            }
-            map.put(key, new JSONString(value));
-        }
+    public static void main(String[] args) throws IOException, JSONConvertException {
+        JSONObject object = parse(new StringReader("{}"));
     }
 
-    public JSONObject parse() throws IOException {
-        int len;
-        StringBuilder sb = new StringBuilder();
+    public static JSONObject parse(Reader reader) throws IOException, JSONConvertException {
+        return new JSONParser(reader).parse();
+    }
 
+    public JSONObject parse() throws IOException, JSONConvertException {
+        int len;
         while ((len = reader.read()) != -1) {
             char c = (char) len;
-            if (c == ' ' && canIgnore) {
-                continue;
-            }
-            if (c == ',') {
-//                sb.toString(): Key Value Pair
-                parseEntryToMap(sb.toString());
-                System.out.println(sb);
-                sb = new StringBuilder();
-                continue;
-            }
-
-
-            if (c == '"') {
-                canIgnore = !canIgnore;
-            }
             if (c == '{') {
-                System.out.println();
-                JSONParser parser = new JSONParser(reader);
-                System.out.println(sb);
-                map.put(sb.toString(), parser.parse());
+                return new ObjectBuilder().parseObject();
             }
-            if (c == '}') {
-                JSONObject obj = new JSONObject();
-                map.forEach(obj::setEntry);
-                return obj;
-            }
-
-            sb.append(c);
-
         }
-        return null;
+        throw new JSONConvertException("Fail to convert, please check the JSON String.");
     }
 
-    public static JSONObject parse(Reader reader) throws IOException {
-        return new JSONParser(reader).parse();
+    private class ObjectBuilder {
+        private final HashMap<String, JSONElement> map = new HashMap<>();
+        private boolean canSkip = false;
+
+        private void parseEntryToMap(String entry) {
+            String[] arr = entry.split(":");
+            String key = arr[0].substring(1, arr[0].length() - 1);
+            String value = arr[1];
+            if ("null".equalsIgnoreCase(value)) {
+                map.put(key, new JSONNull());
+                return;
+            }
+            if ("true".equalsIgnoreCase(arr[1]) || "false".equalsIgnoreCase(arr[1])) {
+                map.put(key, new JSONBoolean(Boolean.parseBoolean(value)));
+                return;
+            }
+
+            Number num = null;
+            try {
+                num = Long.parseLong(value);
+            } catch (Exception ignored) {
+                try {
+                    num = Double.parseDouble(value);
+                } catch (Exception ignored2) {
+                }
+            }
+
+            if (num != null) {
+                map.put(key, new JSONNumber(num));
+            } else {
+                if (value.startsWith("\"")) {
+                    value = value.substring(1);
+                }
+                if (value.endsWith("\"")) {
+                    value = value.substring(0, value.length() - 1);
+                }
+                map.put(key, new JSONString(value));
+            }
+        }
+
+        private JSONObject parseObject() throws IOException {
+            int len;
+            StringBuilder sb = new StringBuilder();
+            JSONObject result = new JSONObject();
+
+            while ((len = reader.read()) != -1) {
+                char c = (char) len;
+                if ((c == ' ' || c == '\n') && canIgnore) {
+                    continue;
+                }
+                if (c == ',') {
+                    if (canSkip) {
+                        canSkip = false;
+                    } else {
+                        parseEntryToMap(sb.toString());
+                    }
+                    sb = new StringBuilder();
+                    continue;
+                }
+                if (c == '"') {
+                    canIgnore = !canIgnore;
+                }
+                if (c == '{') {
+                    ObjectBuilder builder = new ObjectBuilder();
+                    JSONObject obj = builder.parseObject();
+                    map.put(sb.substring(1, sb.length() - 2), obj);
+                    canSkip = true;
+                    continue;
+                }
+                if (c == '}') {
+                    if (canSkip) {
+                        canSkip = false;
+                    } else {
+                        parseEntryToMap(sb.toString());
+                    }
+                    map.forEach(result::setEntry);
+                    return result;
+                }
+                sb.append(c);
+            }
+            map.forEach(result::setEntry);
+            return result;
+        }
+    }
+
+    private class ArrayBuilder {
+        private final ArrayList<JSONElement> list = new ArrayList<>();
+
     }
 }

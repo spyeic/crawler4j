@@ -48,7 +48,7 @@ public class JSONObject extends JSONElement {
         return this;
     }
 
-    public JSONElement remove(String key){
+    public JSONElement remove(String key) {
         JSONElement result = map.remove(key);
         result.setFather(null);
         return result;

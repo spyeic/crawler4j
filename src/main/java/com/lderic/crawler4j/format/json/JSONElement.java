@@ -8,21 +8,47 @@ public abstract class JSONElement {
 
     public abstract String toString();
 
-    public JSONElement getFather(){
+    public JSONElement getFather() {
         return father;
     }
 
-    protected void setFather(JSONElement father){
+    protected void setFather(JSONElement father) {
         this.father = father;
     }
 
     public abstract Object getValue() throws JSONConvertException;
 
-    public JSONObject asObject(){
+    public JSONObject asObject() {
         return (JSONObject) this;
     }
 
-    public JSONArray<JSONElement> asArray(){
+    @SuppressWarnings("unchecked")
+    public JSONArray<JSONElement> asArray() {
         return (JSONArray<JSONElement>) this;
+    }
+
+    public String asString() throws JSONConvertException {
+        return as(String.class);
+    }
+
+    public int asInt() throws JSONConvertException {
+        return as(int.class);
+    }
+
+    public long asLong() throws JSONConvertException {
+        return as(long.class);
+    }
+
+    public double asDouble() throws JSONConvertException {
+        return as(double.class);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T as(Class<T> clazz) throws JSONConvertException {
+        try {
+            return (T) this.getValue();
+        } catch (Exception ignored) {
+            throw new JSONConvertException("Can't convert " + getValue() + " to " + clazz.getName());
+        }
     }
 }
