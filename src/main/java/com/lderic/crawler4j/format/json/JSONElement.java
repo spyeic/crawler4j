@@ -1,28 +1,27 @@
 package com.lderic.crawler4j.format.json;
 
 /**
- * Mark class.
+ * The root class of JSON elements.
  */
 public abstract class JSONElement {
-    private JSONElement father;
+    private JSONContainer container;
 
     public abstract String toString();
 
-    public JSONElement getFather() {
-        return father;
+    public JSONContainer getContainer() {
+        return container;
     }
 
-    protected void setFather(JSONElement father) {
-        this.father = father;
+    protected void setFather(JSONContainer father) {
+        this.container = father;
     }
 
     public JSONObject asObject() {
         return (JSONObject) this;
     }
 
-    @SuppressWarnings("unchecked")
-    public JSONArray<JSONElement> asArray() {
-        return (JSONArray<JSONElement>) this;
+    public JSONArray asArray() {
+        return (JSONArray) this;
     }
 
     @SuppressWarnings("unchecked")
