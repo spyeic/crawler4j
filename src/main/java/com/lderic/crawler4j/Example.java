@@ -1,6 +1,7 @@
 package com.lderic.crawler4j;
 
 import com.lderic.crawler4j.connection.Connection;
+import com.lderic.crawler4j.connection.Request;
 import com.lderic.crawler4j.converter.receiver.FileReceiver;
 import com.lderic.crawler4j.converter.receiver.StringReceiver;
 import com.lderic.crawler4j.format.json.JSONObject;
@@ -20,7 +21,7 @@ public class Example {
                 .setEntry("obj", new JSONObject()
                         .setEntry("newObj", "new Value")
                         .setEntry("bool", true)
-                        .setEntry("arr", 20,50,70.097)
+                        .setEntry("arr", 20, 50, 70.097)
                 )
                 .setNullEntry("last");
         System.out.println(obj);
@@ -39,13 +40,13 @@ public class Example {
 
         // 和上面那个效果相同
         crawler.newBuilder()
-                .setMethod(Connection.Request.Method.GET)
+                .setMethod(Request.Method.GET)
                 .url(new URL("https://www.baidu.com"))
                 .build()
                 .open(new StringReceiver());
 
         // 效果还是一样
-        crawler.request(Connection.Request.Method.GET, "https://www.baidu.com", null, null, null);
+        crawler.request(Request.Method.GET, "https://www.baidu.com", null, null, null);
 
         // 这个是访问P站的 大同小异
         crawler.get(
