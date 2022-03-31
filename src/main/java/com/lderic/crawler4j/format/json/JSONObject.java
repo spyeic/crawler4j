@@ -1,5 +1,6 @@
 package com.lderic.crawler4j.format.json;
 
+import java.io.File;
 import java.util.*;
 
 /**
@@ -12,6 +13,14 @@ public class JSONObject extends JSONContainer implements Map<String, JSONElement
      * Create a new JSONObject.
      */
     public JSONObject() {
+    }
+
+    public static JSONObject from(String json) throws JSONConvertException {
+        return JSONParser.parse(json);
+    }
+
+    public static JSONObject from(File jsonFile) throws JSONConvertException {
+        return JSONParser.parse(jsonFile);
     }
 
     public JSONObject setEntry(String key, Number value) {

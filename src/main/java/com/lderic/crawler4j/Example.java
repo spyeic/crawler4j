@@ -11,7 +11,22 @@ import java.net.URL;
 import java.util.List;
 
 public class Example {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
+
+        // 新建JSON
+        JSONObject obj = new JSONObject().setEntry("key", "value")
+                .setEntry("num", 120)
+                .setEntry("array", (Number) List.of(21, 31219281, 13.219))
+                .setEntry("obj", new JSONObject()
+                        .setEntry("newObj", "new Value")
+                        .setEntry("bool", true)
+                        .setEntry("arr", 20,50,70.097)
+                )
+                .setNullEntry("last");
+        System.out.println(obj);
+    }
+
+    public static void crawlerExample() throws IOException {
         // 新建实例
         Crawler crawler = new Crawler();
 
@@ -43,16 +58,5 @@ public class Example {
                     builder.referrer("https://www.pixiv.net");
                 }
         );
-
-        // 新建JSON
-        JSONObject obj = new JSONObject().setEntry("key", "value")
-                .setEntry("num", 120)
-                .setEntry("array", (Number) List.of(21, 31219281, 13.219))
-                .setEntry("obj", new JSONObject()
-                        .setEntry("newObj", "new Value")
-                        .setEntry("bool", true)
-                )
-                .setNullEntry("last");
-        System.out.println(obj);
     }
 }
