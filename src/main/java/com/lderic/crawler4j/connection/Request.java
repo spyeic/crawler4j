@@ -1,10 +1,9 @@
 package com.lderic.crawler4j.connection;
 
 import java.io.IOException;
-import java.net.URLConnection;
 
 public interface Request {
-    URLConnection request() throws IOException;
+    void request() throws IOException;
 
     enum ConnectType {
         Json("application/json"),

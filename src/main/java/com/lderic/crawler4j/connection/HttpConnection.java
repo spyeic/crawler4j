@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,22 +17,32 @@ import java.util.Objects;
 public class HttpConnection implements Connection {
     private final HttpRequest req;
     private final CookieStorage cookieStorage;
+    private final URL url;
 
-    private HttpConnection(HttpRequest req) {
-        this.req = req;
-        this.cookieStorage = req.cookieStorage;
+    private HttpURLConnection conn;
+
+    private HttpConnection(CookieStorage cookieStorage, URL url, Request.Method requestMethod, List<Header> requestHeaders, byte[] body, Integer connectTimeout, Integer readTimeout) {
+        this.cookieStorage = cookieStorage;
+        this.url = url;
+        this.req = new HttpRequest(requestMethod, requestHeaders, body, connectTimeout, readTimeout);
     }
 
-    public static Builder newBuilder(CookieStorage cookieStorage) {
+    /**
+     * Get a HttpConnection builder.
+     *
+     * @param cookieStorage a storage of
+     * @see com.lderic.crawler4j.connection.Connection.Builder
+     */
+    public static Builder getBuilder(CookieStorage cookieStorage) {
         return new HttpConnectionBuilder(cookieStorage);
     }
 
     @Override
-    public <T> Response<T> open(Receiver<T> converter) throws IOException {
-        HttpURLConnection conn = (HttpURLConnection) req.request();
-        HttpResponse<T> res = new HttpResponse<>(conn, cookieStorage);
-        res.receive(converter);
-        res.conn.disconnect();
+    public <T> Response<T> open(Receiver<T> receiver) throws IOException {
+        req.request();
+        HttpResponse<T> res = new HttpResponse<>();
+        res.receive(receiver);
+        conn.disconnect();
         return res;
     }
 
@@ -43,8 +52,8 @@ public class HttpConnection implements Connection {
         private final List<HttpCookie> tempCookies = new ArrayList<>();
         private Request.Method requestMethod;
         private URL url;
-        private int connectTimeout;
-        private int readTimeout;
+        private Integer connectTimeout;
+        private Integer readTimeout;
         private byte[] body;
 
         public HttpConnectionBuilder(CookieStorage cookieStorage) {
@@ -58,7 +67,7 @@ public class HttpConnection implements Connection {
 
             tempCookies.forEach(cookie -> cookieStorage.add(url.toString(), cookie));
 
-            return new HttpConnection(new HttpRequest(requestMethod, url, headers, cookieStorage, body, connectTimeout, readTimeout));
+            return new HttpConnection(cookieStorage, url, requestMethod, headers, body, connectTimeout, readTimeout);
         }
 
         @Override
@@ -146,74 +155,15 @@ public class HttpConnection implements Connection {
         }
     }
 
-    public static class HttpRequest implements Request {
-        private final Method requestMethod;
-        private final URL url;
-        private final List<Header> headers;
-        private final CookieStorage cookieStorage;
-        private final byte[] body;
-        private final Integer connectTimeout;
-        private final Integer readTimeout;
-
-        private HttpRequest(Method method, URL url, List<Header> headers, CookieStorage cookieStorage, byte[] body, Integer connectTimeout, Integer readTimeout) {
-            this.requestMethod = method;
-            this.url = url;
-            this.headers = headers;
-            this.cookieStorage = cookieStorage;
-            this.body = body;
-            this.connectTimeout = connectTimeout;
-            this.readTimeout = readTimeout;
-        }
-
-        @Override
-        public URLConnection request() throws IOException {
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod(requestMethod.name());
-            if (requestMethod.hasBody) {
-                conn.setDoOutput(true);
-                conn.setDoInput(true);
-            }
-            if (connectTimeout != null) {
-                conn.setConnectTimeout(connectTimeout);
-            }
-            if (readTimeout != null) {
-                conn.setReadTimeout(readTimeout);
-            }
-            headers.forEach(header -> conn.setRequestProperty(header.getKey(), header.getValue()));
-            StringBuilder sb = new StringBuilder();
-            List<HttpCookie> cookies = cookieStorage.getAll();
-            if (cookies.size() != 0) {
-                sb.append(cookies.get(0).toString());
-                for (int i = 1; i < cookies.size(); i++) {
-                    sb.append(";").append(cookies.get(i).toString());
-                }
-                conn.setRequestProperty(Header.RequestHeaderKey.Cookie.string, sb.toString());
-            }
-
-            // Start connection
-            conn.connect();
-
-            if (requestMethod.hasBody) {
-                if (body != null) {
-                    conn.getOutputStream().write(body);
-                }
-            }
-            return conn;
-        }
-    }
-
-    public static class HttpResponse<T> implements Response<T> {
-        private final HttpURLConnection conn;
-        private final CookieStorage cookieStorage;
+    public class HttpResponse<T> implements Response<T> {
         private int code;
         private String message;
         private List<Header> headers;
         private T content;
+        private boolean isReceived;
 
 
-        private HttpResponse(HttpURLConnection conn, CookieStorage cookieStorage) {
-            this.conn = conn;
-            this.cookieStorage = cookieStorage;
+        private HttpResponse() {
         }
 
         @Override
@@ -247,8 +197,12 @@ public class HttpConnection implements Connection {
         }
 
         @Override
-        public T receive(Receiver<T> converter) throws IOException {
-            content = converter.toOriginal(receive());
+        public T receive(Receiver<T> receiver) throws IOException {
+            if (isReceived) {
+                throw new IOException("This request is already received");
+            }
+            content = receiver.toOriginal(receive());
+            isReceived = true;
             return content;
         }
 
@@ -278,6 +232,57 @@ public class HttpConnection implements Connection {
             });
 
             return conn.getInputStream();
+        }
+    }
+
+    public class HttpRequest implements Request {
+        private final Method requestMethod;
+        private final List<Header> headers;
+        private final byte[] body;
+        private final Integer connectTimeout;
+        private final Integer readTimeout;
+
+        private HttpRequest(Method method, List<Header> headers, byte[] body, Integer connectTimeout, Integer readTimeout) {
+            this.requestMethod = method;
+            this.headers = headers;
+            this.body = body;
+            this.connectTimeout = connectTimeout;
+            this.readTimeout = readTimeout;
+        }
+
+        @Override
+        public void request() throws IOException {
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod(requestMethod.name());
+            if (requestMethod.hasBody) {
+                conn.setDoOutput(true);
+                conn.setDoInput(true);
+            }
+            if (connectTimeout != null) {
+                conn.setConnectTimeout(connectTimeout);
+            }
+            if (readTimeout != null) {
+                conn.setReadTimeout(readTimeout);
+            }
+            headers.forEach(header -> conn.setRequestProperty(header.getKey(), header.getValue()));
+            StringBuilder sb = new StringBuilder();
+            List<HttpCookie> cookies = cookieStorage.getAll();
+            if (cookies.size() != 0) {
+                sb.append(cookies.get(0).toString());
+                for (int i = 1; i < cookies.size(); i++) {
+                    sb.append(";").append(cookies.get(i).toString());
+                }
+                conn.setRequestProperty(Header.RequestHeaderKey.Cookie.string, sb.toString());
+            }
+
+            // Start connection
+            conn.connect();
+
+            if (requestMethod.hasBody) {
+                if (body != null) {
+                    conn.getOutputStream().write(body);
+                }
+            }
         }
     }
 }

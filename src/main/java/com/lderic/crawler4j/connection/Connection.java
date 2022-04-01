@@ -6,13 +6,19 @@ import com.lderic.crawler4j.converter.sender.Sender;
 import java.io.IOException;
 import java.net.HttpCookie;
 import java.net.URL;
-import java.net.URLConnection;
-import java.util.List;
 
-@SuppressWarnings("ALL")
 public interface Connection {
-    <T> Response<T> open(Receiver<T> converter) throws IOException;
+    /**
+     * To open the connection.
+     * Note that this method can be used more than once.
+     * Every time call this method will request the same thing.
+     *
+     * @param receiver An impl of Receiver. To convert input stream to type T.
+     * @return A Response of this Connection.
+     */
+    <T> Response<T> open(Receiver<T> receiver) throws IOException;
 
+    @SuppressWarnings("ALL")
     interface Builder {
         Connection build();
 

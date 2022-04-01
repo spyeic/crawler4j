@@ -21,7 +21,7 @@ public class Crawler {
     }
 
     public Connection.Builder newBuilder() {
-        return HttpConnection.newBuilder(storage);
+        return HttpConnection.getBuilder(storage);
     }
 
     public CookieStorage getCookieStorage() {
@@ -36,12 +36,12 @@ public class Crawler {
         return request(Request.Method.GET, url, null, new ByteArrayReceiver(), consumer);
     }
 
-    public <T> Response<T> get(String url, Receiver<T> converter) throws IOException {
-        return get(url, converter, null);
+    public <T> Response<T> get(String url, Receiver<T> receiver) throws IOException {
+        return get(url, receiver, null);
     }
 
-    public <T> Response<T> get(String url, Receiver<T> converter, Consumer<Connection.Builder> consumer) throws IOException {
-        return request(Request.Method.GET, url, null, converter, consumer);
+    public <T> Response<T> get(String url, Receiver<T> receiver, Consumer<Connection.Builder> consumer) throws IOException {
+        return request(Request.Method.GET, url, null, receiver, consumer);
     }
 
     public Response<byte[]> post(String url, byte[] body) throws IOException {
@@ -56,32 +56,32 @@ public class Crawler {
         return post(url, body, converter, null);
     }
 
-    public <T> Response<T> post(String url, byte[] body, Receiver<T> converter, Consumer<Connection.Builder> consumer) throws IOException {
-        return request(Request.Method.POST, url, body, converter, consumer);
+    public <T> Response<T> post(String url, byte[] body, Receiver<T> receiver, Consumer<Connection.Builder> consumer) throws IOException {
+        return request(Request.Method.POST, url, body, receiver, consumer);
     }
 
-    public <T> Response<byte[]> post(String url, T body, Sender<T> converter) throws IOException {
-        return post(url, body, converter, (Consumer<Connection.Builder>) null);
+    public <T> Response<byte[]> post(String url, T body, Sender<T> sender) throws IOException {
+        return post(url, body, sender, (Consumer<Connection.Builder>) null);
     }
 
-    public <T> Response<byte[]> post(String url, T body, Sender<T> converter, Consumer<Connection.Builder> consumer) throws IOException {
-        return request(Request.Method.POST, url, converter.toBytes(body), new ByteArrayReceiver(), consumer);
+    public <T> Response<byte[]> post(String url, T body, Sender<T> sender, Consumer<Connection.Builder> consumer) throws IOException {
+        return request(Request.Method.POST, url, sender.toBytes(body), new ByteArrayReceiver(), consumer);
     }
 
-    public <TInput, TOutput> Response<TInput> post(String url, TOutput body, Sender<TOutput> oConverter, Receiver<TInput> iConverter) throws IOException {
-        return post(url, body, oConverter, iConverter, null);
+    public <TInput, TOutput> Response<TInput> post(String url, TOutput body, Sender<TOutput> sender, Receiver<TInput> receiver) throws IOException {
+        return post(url, body, sender, receiver, null);
     }
 
-    public <TInput, TOutput> Response<TInput> post(String url, TOutput body, Sender<TOutput> oConverter, Receiver<TInput> iConverter, Consumer<Connection.Builder> consumer) throws IOException {
-        return post(url, oConverter.toBytes(body), iConverter, consumer);
+    public <TInput, TOutput> Response<TInput> post(String url, TOutput body, Sender<TOutput> sender, Receiver<TInput> receiver, Consumer<Connection.Builder> consumer) throws IOException {
+        return post(url, sender.toBytes(body), receiver, consumer);
     }
 
-    public <T> Response<T> request(Request.Method method, String url, byte[] body, Receiver<T> converter, Consumer<Connection.Builder> consumer) throws IOException {
+    public <T> Response<T> request(Request.Method method, String url, byte[] body, Receiver<T> receiver, Consumer<Connection.Builder> consumer) throws IOException {
         Connection.Builder builder = newBuilder();
         builder.setMethod(method).url(new URL(url)).setBody(body);
         if (consumer != null) {
             consumer.accept(builder);
         }
-        return builder.build().open(converter);
+        return builder.build().open(receiver);
     }
 }
