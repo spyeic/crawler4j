@@ -1,23 +1,22 @@
 package com.lderic.crawler4j.format.json;
 
+import com.lderic.crawler4j.io.UTF8Reader;
+import com.lderic.crawler4j.io.UnicodeReader;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class JSONParser {
 
-    final BufferedReader reader;
+    final UnicodeReader reader;
     private boolean canIgnore = true;
 
     /**
      * A parser to parse JSON
      */
     private JSONParser(Reader reader) {
-        if (reader instanceof BufferedReader) {
-            this.reader = (BufferedReader) reader;
-        } else {
-            this.reader = new BufferedReader(reader);
-        }
+        this.reader = new UTF8Reader(reader);
     }
 
     /**
