@@ -7,10 +7,13 @@ import com.lderic.crawler4j.converter.sender.Sender;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class Crawler {
     private final CookieStorage storage;
+    private final List<Consumer<Connection.Builder>> consumers = new ArrayList<>();
 
     public Crawler() {
         this.storage = new DefaultCookieStorage();
@@ -26,6 +29,10 @@ public class Crawler {
 
     public CookieStorage getCookieStorage() {
         return storage;
+    }
+
+    public void setDefault(Consumer<Connection.Builder> consumer) {
+        consumers.add(consumer);
     }
 
     public Response<byte[]> get(String url) throws IOException {
@@ -82,6 +89,7 @@ public class Crawler {
         if (consumer != null) {
             consumer.accept(builder);
         }
+        consumers.forEach(c -> c.accept(builder));
         return builder.build().open(receiver);
     }
 }
