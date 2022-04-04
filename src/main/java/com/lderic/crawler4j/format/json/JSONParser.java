@@ -5,7 +5,7 @@ import com.lderic.crawler4j.io.UnicodeReader;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class JSONParser {
 
@@ -104,7 +104,7 @@ public class JSONParser {
     }
 
     private class ObjectBuilder {
-        private final HashMap<String, JSONElement> map = new HashMap<>();
+        private final LinkedHashMap<String, JSONElement> map = new LinkedHashMap<>();
         private boolean canSkip = false;
 
         private void addToMap(String entry) {

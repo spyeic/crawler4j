@@ -7,7 +7,7 @@ import java.util.*;
  * A packaging class for HashMap.
  */
 public class JSONObject extends JSONContainer implements Map<String, JSONElement> {
-    private final HashMap<String, JSONElement> map = new HashMap<>();
+    private final LinkedHashMap<String, JSONElement> map = new LinkedHashMap<>();
 
     /**
      * Create a new JSONObject.
