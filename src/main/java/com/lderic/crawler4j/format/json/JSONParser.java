@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
 public class JSONParser {
 
     final UnicodeReader reader;
-    private boolean canIgnore = true;
+    private boolean outQuote = true;
 
     /**
      * A parser to parse JSON
@@ -107,40 +107,37 @@ public class JSONParser {
         private final LinkedHashMap<String, JSONElement> map = new LinkedHashMap<>();
         private boolean canSkip = false;
 
-        private void addToMap(String entry) {
-            String[] arr = entry.split(":");
-            if (arr.length != 2) {
-                return;
-            }
-            String key = arr[0].substring(1, arr[0].length() - 1);
-            String value = arr[1];
-            map.put(key, parseToElement(value));
-        }
-
         private JSONObject parseObject() throws IOException, JSONConvertException {
             int len;
             StringBuilder sb = new StringBuilder();
-
+            String key = null;
             while ((len = reader.read()) != -1) {
                 char c = (char) len;
-                if (canIgnore && (c == ' ' || c == '\n')) {
+                if (outQuote && (c == ' ' || c == '\n')) {
                     continue;
                 }
                 switch (c) {
-                    case '"' -> canIgnore = !canIgnore;
+                    case '"' -> outQuote = !outQuote;
                     case ',' -> {
                         if (canSkip) {
                             canSkip = false;
                         } else {
-                            addToMap(sb.toString());
+                            map.put(key, parseToElement(sb.toString()));
                         }
                         sb = new StringBuilder();
                         continue;
                     }
+                    case ':' -> {
+                        if (outQuote) {
+                            key = sb.substring(1, sb.length() - 1);
+                            sb = new StringBuilder();
+                            continue;
+                        }
+                    }
                     case '{' -> {
                         ObjectBuilder builder = new ObjectBuilder();
                         JSONObject obj = builder.parseObject();
-                        map.put(sb.substring(1, sb.length() - 2), obj);
+                        map.put(key, obj);
                         canSkip = true;
                         continue;
                     }
@@ -148,7 +145,7 @@ public class JSONParser {
                         if (canSkip) {
                             canSkip = false;
                         } else {
-                            addToMap(sb.toString());
+                            map.put(key, parseToElement(sb.toString()));
                         }
                         JSONObject result = new JSONObject();
                         map.forEach(result::setEntry);
@@ -157,7 +154,7 @@ public class JSONParser {
                     case '[' -> {
                         ArrayBuilder builder = new ArrayBuilder();
                         JSONArray obj = builder.parseArray();
-                        map.put(sb.substring(1, sb.length() - 2), obj);
+                        map.put(key, obj);
                         canSkip = true;
                         continue;
                     }
@@ -182,11 +179,11 @@ public class JSONParser {
 
             while ((len = reader.read()) != -1) {
                 char c = (char) len;
-                if (canIgnore && (c == ' ' || c == '\n')) {
+                if (outQuote && (c == ' ' || c == '\n')) {
                     continue;
                 }
                 switch (c) {
-                    case '"' -> canIgnore = !canIgnore;
+                    case '"' -> outQuote = !outQuote;
                     case ',' -> {
                         if (canSkip) {
                             canSkip = false;
