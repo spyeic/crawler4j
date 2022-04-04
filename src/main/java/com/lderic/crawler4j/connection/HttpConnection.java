@@ -172,6 +172,11 @@ public class HttpConnection implements Connection {
         }
 
         @Override
+        public String getURL() {
+            return url.toString();
+        }
+
+        @Override
         public int getCode() {
             return code;
         }
@@ -215,10 +220,7 @@ public class HttpConnection implements Connection {
             headerFields.forEach((key, values) -> {
                 if (key != null) {
                     if ("Set-Cookie".equals(key)) {
-                        values.forEach(str -> HttpCookie.parse(str).forEach(cookie -> {
-//                            System.out.println(cookie);
-                            cookieStorage.add(conn.getURL().toString(), cookie);
-                        }));
+                        values.forEach(str -> HttpCookie.parse(str).forEach(cookie -> cookieStorage.add(conn.getURL().toString(), cookie)));
                     } else {
                         StringBuilder sb = new StringBuilder();
                         sb.append(values.get(0));

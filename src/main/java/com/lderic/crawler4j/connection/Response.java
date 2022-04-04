@@ -8,6 +8,8 @@ import java.util.List;
 public interface Response<T> {
     T getContent();
 
+    String getURL();
+
     int getCode();
 
     String getMessage();
