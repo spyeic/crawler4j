@@ -19,7 +19,7 @@ public class JSONArray extends JSONContainer implements List<JSONElement> {
         StringBuilder sb = new StringBuilder();
         sb.append("[");
         if (list.size() > 0) {
-            sb.append(System.lineSeparator());
+            sb.append(System.lineSeparator()).append("\t".repeat(next));
             if (list.get(0) instanceof JSONContainer) {
                 sb.append(((JSONContainer) list.get(0)).beautify(next));
             } else {
@@ -27,7 +27,7 @@ public class JSONArray extends JSONContainer implements List<JSONElement> {
             }
 
             for (int i = 1; i < list.size(); i++) {
-                sb.append(", ").append(System.lineSeparator());
+                sb.append(", ").append(System.lineSeparator()).append("\t".repeat(next));
                 if (list.get(i) instanceof JSONContainer) {
                     sb.append(((JSONContainer) list.get(i)).beautify(next));
                 } else {
