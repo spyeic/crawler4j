@@ -14,6 +14,33 @@ public class JSONArray extends JSONContainer implements List<JSONElement> {
     }
 
     @Override
+    protected String beautify(int indentation) {
+        int next = indentation + 1;
+        StringBuilder sb = new StringBuilder();
+        sb.append("[");
+        if (list.size() > 0) {
+            sb.append(System.lineSeparator());
+            if (list.get(0) instanceof JSONContainer) {
+                sb.append(((JSONContainer) list.get(0)).beautify(next));
+            } else {
+                sb.append(list.get(0).toString());
+            }
+
+            for (int i = 1; i < list.size(); i++) {
+                sb.append(", ").append(System.lineSeparator());
+                if (list.get(i) instanceof JSONContainer) {
+                    sb.append(((JSONContainer) list.get(i)).beautify(next));
+                } else {
+                    sb.append(list.get(i).toString());
+                }
+            }
+            sb.append(System.lineSeparator()).append("\t".repeat(indentation));
+        }
+        sb.append("]");
+        return sb.toString();
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("[");

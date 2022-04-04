@@ -8,6 +8,10 @@ public class JSONHelper {
         return "\"" + key + "\": " + value.toString();
     }
 
+    public static String toKeyValueSet(String key, String value) {
+        return "\"" + key + "\": " + value;
+    }
+
     public static JSONArray jsonArrayOf(Number... nums) {
         return new JSONArray(numberListOf(nums));
     }

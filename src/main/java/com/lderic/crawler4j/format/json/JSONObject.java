@@ -67,6 +67,38 @@ public class JSONObject extends JSONContainer implements Map<String, JSONElement
         return child;
     }
 
+    public String beautify() {
+        return beautify(0);
+    }
+
+    @Override
+    protected String beautify(int indentation) {
+        int next = indentation + 1;
+        List<Map.Entry<String, JSONElement>> list = map.entrySet().stream().toList();
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        if (map.size() > 0) {
+            sb.append(System.lineSeparator()).append("\t".repeat(next));
+            if (list.get(0).getValue() instanceof JSONContainer) {
+                sb.append(JSONHelper.toKeyValueSet(list.get(0).getKey(), ((JSONContainer) list.get(0).getValue()).beautify(next)));
+            } else {
+                sb.append(JSONHelper.toKeyValueSet(list.get(0).getKey(), list.get(0).getValue()));
+            }
+            for (int i = 1; i < list.size(); i++) {
+                sb.append(",")
+                        .append(System.lineSeparator()).append("\t".repeat(next));
+                if (list.get(i).getValue() instanceof JSONContainer) {
+                    sb.append(JSONHelper.toKeyValueSet(list.get(i).getKey(), ((JSONContainer) list.get(i).getValue()).beautify(next)));
+                } else {
+                    sb.append(JSONHelper.toKeyValueSet(list.get(i).getKey(), list.get(i).getValue()));
+                }
+            }
+            sb.append(System.lineSeparator()).append("\t".repeat(indentation));
+        }
+        sb.append("}");
+        return sb.toString();
+    }
+
     @Override
     public String toString() {
         List<Map.Entry<String, JSONElement>> list = map.entrySet().stream().toList();
