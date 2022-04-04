@@ -41,6 +41,7 @@ public class UTF8Reader extends UnicodeReader {
     private int read0() throws IOException {
         if (tempLength > 0) {
             char temp = tempBuf[tempIndex++];
+
             if (temp == '\\') {
                 return slash();
             } else {
@@ -55,16 +56,24 @@ public class UTF8Reader extends UnicodeReader {
         return i;
     }
 
+    private int next() throws IOException {
+        if (nextIndex >= nChars) {
+            fill();
+            if (nChars < 0) {
+                return -1;
+            }
+        }
+        return buf[nextIndex++];
+    }
+
     private int slash() throws IOException {
         char next = buf[nextIndex++];
-        //final char[] pattern = {'b', 'f', 'n', 'r', 't', 'v', '/', '"', '\'};
         switch (next) {
             case 'u' -> {
                 tempBuf[0] = next;
                 tempLength = 1;
                 for (int j = 1; j < 5; j++) {
-                    tempBuf[j] = buf[nextIndex++];
-//                        sb.append((char) super.read());
+                    tempBuf[j] = (char) next(); //buf[nextIndex++];
                 }
                 try {
                     int uc = Integer.parseInt("" + tempBuf[1] + tempBuf[2] + tempBuf[3] + tempBuf[4], 16);
@@ -72,7 +81,7 @@ public class UTF8Reader extends UnicodeReader {
                     return uc;
                 } catch (Throwable t) {
                     tempLength += 4;
-                    return buf[tempIndex++];
+                    return (char) next();//buf[nextIndex++];
                 }
             }
             case 'b' -> {
